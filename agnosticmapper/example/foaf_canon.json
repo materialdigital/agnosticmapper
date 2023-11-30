@@ -1,0 +1,35 @@
+[{
+  "Group": {
+    "listHandler": ["member"],
+    "member": [{
+      "Person": {
+        "hasIdentifier": "a"
+      }
+    }, {
+      "Person": {
+        "hasIdentifier": "b"
+      }
+    }]
+  }
+}, {
+  "Person": {
+    "hasIdentifier": "a",
+    "additionalTypes": ["Agent"],
+    "name": "Alice",
+    "interest": "http://purl.org/dc/terms/BibliographicResource"
+  }
+}, {
+  "Person": {
+    "hasIdentifier": "b",
+    "name": "Bob",
+    "knows": [{
+      "Person": {
+        "name": "Charlie"
+      }
+    }, {
+      "Person": {
+        "name": "Dave"
+      }
+    }]
+  }
+}]
