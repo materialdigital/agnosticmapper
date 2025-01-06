@@ -1,5 +1,5 @@
 """
-Copyright 2023, Leibniz-Institut für Werkstofforientierte Technologien - IWT.
+Copyright 2025, Leibniz-Institut für Werkstofforientierte Technologien - IWT.
 All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -117,9 +117,12 @@ class Mapper:
         
         #Parse uploaded ontologies into a rdflib Graph
         self.g = rdflib.Graph()
+        default_namespaces = [str(namespace) for _, namespace in self.g.namespaces()]
         [self.g.parse(data=data) for data in ontos]
-        
-        self.context = context
+        # get context from graph
+        self.context = {prefix: namespace for prefix, namespace in self.g.namespaces() if str(namespace) not in default_namespaces and "default" not in str(prefix) and prefix}
+        if context:  # manual addition
+            self.context.update(context)
         self.entityContextTuple = entityContextTuple
         if len(entityContextTuple) != 2:
             raise Exception("Entity Context must be a Tuple of 2 columns")
@@ -469,8 +472,8 @@ class Mapper:
                             labelAppendix = value
                             if "http://www.w3.org/2000/01/rdf-schema#label" in iterable:
                                 labelAppendix = iterable["http://www.w3.org/2000/01/rdf-schema#label"]
-                            shortid = idMap[value].replace(self.entityContextTuple[1], "")[:6]
-                            iterable[self.__get_class_by_label("label", "http://www.w3.org/2000/01/rdf-schema#label")] = f"{shortid} {labelAppendix}"
+                            shortid = idMap[value].replace(self.entityContextTuple[1], "")[:4]
+                            iterable[self.__get_class_by_label("label", "http://www.w3.org/2000/01/rdf-schema#label")] = f"{labelAppendix} {shortid}"
                     elif isinstance(value, list) or isinstance(value, dict):
                         __set_uuid(value, key)
             elif isinstance(iterable, list):
@@ -498,34 +501,43 @@ class Mapper:
 
         # save onto as ttl (as  as output)
         return gData.serialize(format='turtle')
-    
+
+
+
 def example():
+    from agnosticmapper import Mapper
+    import json
+    import os
+
     mapper = Mapper()
-    ontos = [open(file, "r").read() for file in [f"{os.path.dirname(__file__)}/example/foaf.ttl",
-                                                 f"{os.path.dirname(__file__)}/example/rdf-schema.ttl",
-                                                 f"{os.path.dirname(__file__)}/example/dublin_core_terms.ttl"]] 
-    canon_json = json.loads(open(f"{os.path.dirname(__file__)}/example/foaf_canon.json", "r").read())
+    ontos = [open(file, "r").read() for file in
+             [f"./example/foaf.ttl", f"./example/rdf-schema.ttl",
+              f"./example/dublin_core_terms.ttl"]]
+
+    canon_json = json.loads(open(f"./example/foaf_canon.json", "r").read())
+
     context = {
         "foaf": "http://xmlns.com/foaf/0.1",
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
         "dcterms": "http://purl.org/dc/terms/"
     }
-    
+
     entityContextTuple = ("entity", "http://example.org/entity/")
-    
+
     ignoreEntityInstantiationList = ["interest"]
 
     result = mapper.map(canon=canon_json,
-                ontos=ontos,
-                context=context,
-                entityContextTuple=entityContextTuple,
-                ignoreEntityInstantiationList=ignoreEntityInstantiationList)
-    
+                        ontos=ontos,
+                        context=context,
+                        entityContextTuple=entityContextTuple,
+                        ignoreEntityInstantiationList=ignoreEntityInstantiationList)
+
     print(result)
-
-
+    exit()
 
 if __name__=="__main__":
+    #example()
+
     mapper = Mapper()
 
     parser=argparse.ArgumentParser(description='Converts canonical json json to Turtle', prog='agnosticmapper')

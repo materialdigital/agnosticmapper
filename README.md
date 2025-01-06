@@ -71,6 +71,9 @@ mapper = Mapper()
 The mapper only provides one method, called `map(...)`.
 The method creates the Turtle file out of the given canonical json. Based on provided ontology terminologies. It instantiates classes by its labels with a uuid and using the given entity context as the namespace.
 
+It is advised to include a `@prefix` line inside each provided ontology terminologies that defines its own namespace, e.g. `@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+` in the `./examples/foaf.ttl` or it must be included in the parameter `context`.
+
 ```
 mapper.map(canon, ontos, context, entityContextTuple, ignoreEntityInstantiationList)
 ```
@@ -172,7 +175,7 @@ If the label is marked in "listHandler", the array will be handled as a ordered 
 
 "hasIdentifier" is used to cross reference class instances within the canon json. If you reference a class instance at another point, you must use it or else it will create two different class instances with different uuids.
 
-"additoinalTypes" will add more subclasses to the class instance apart from the label that is used as the key.
+"additionalTypes" will add more subclasses to the class instance apart from the label that is used as the key.
 
 The prefix and namespace that is prefixed to the uuids of the class instance IRIs ist provided via the "entityContextTuple" parameter.
 
@@ -184,29 +187,30 @@ The prefix and namespace that is prefixed to the uuids of the class instance IRI
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-entity:ef4cc7abeebf4ca2b0db3e9625bfaba9 a foaf:Group ;
-    rdfs:label "ef4cc7 Group" ;
-    rdfs:member ( entity:e78d4393bc3d4decb38e2c335294b480 entity:b2c30466cbf34bc18429d3aa9e3d7a8b ) .
+entity:b5df5937bbe24b70bd88258222027260 a foaf:Group ;
+    rdfs:label "Group b5df" ;
+    rdfs:member ( entity:0c2becddb1f446618c14ab37e336e364 entity:45164feebf7a435dbe08be031f233975 ) .
 
-entity:e78d4393bc3d4decb38e2c335294b480 a dcterms:Agent,
+entity:0c2becddb1f446618c14ab37e336e364 a dcterms:Agent,
         foaf:Person ;
-    rdfs:label "e78d43 Person" ;
+    rdfs:label "Person 0c2b" ;
     foaf:interest dcterms:BibliographicResource ;
     foaf:name "Alice" .
-    
-entity:b2c30466cbf34bc18429d3aa9e3d7a8b a foaf:Person ;
-    rdfs:label "b2c304 Person" ;
-    foaf:knows entity:c466dac731024d0a88d493ceaab70ea1,
-        entity:e054f53709a84c27aade3b2c097375e5 ;
+
+entity:14ff7200e44a45108108bde369281349 a foaf:Person ;
+    rdfs:label "Person 14ff" ;
+    foaf:name "Dave" .
+
+entity:45164feebf7a435dbe08be031f233975 a foaf:Person ;
+    rdfs:label "Person 4516" ;
+    foaf:knows entity:14ff7200e44a45108108bde369281349,
+        entity:cb0393390d684cd398f63934d30f3351 ;
     foaf:name "Bob" .
 
-entity:e054f53709a84c27aade3b2c097375e5 a foaf:Person ;
-    rdfs:label "e054f5 Person" ;
+entity:cb0393390d684cd398f63934d30f3351 a foaf:Person ;
+    rdfs:label "Person cb03" ;
     foaf:name "Charlie" .
 
-entity:c466dac731024d0a88d493ceaab70ea1 a foaf:Person ;
-    rdfs:label "c466da Person" ;
-    foaf:name "Dave" .
 ```
 
 The order of searching for the label is:
